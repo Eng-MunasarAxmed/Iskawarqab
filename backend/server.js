@@ -18,12 +18,13 @@ app.use(
   cors({
     origin: ["http://localhost:5173", "https://iskawarqab.netlify.app"],
     credentials: true,
-  })
+  }),
 );
 require("./cron");
 app.use(express.json());
 
 const mongoose = require("mongoose");
+const auth = require("./Middleware/auth");
 console.log("DATABASE exists:", !!process.env.DATABASE);
 
 mongoose
@@ -37,7 +38,7 @@ mongoose
   });
 
 // 2. Routes-ka saxda ah (Mid walba meeshiisa ayuu ku jiraa)
-app.use("/api/users", router);
+app.use("/api/users", auth, router);
 app.use("/api/transections", transectionRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/auth", authRouter);
