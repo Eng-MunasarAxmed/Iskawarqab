@@ -24,6 +24,7 @@ require("./cron");
 app.use(express.json());
 
 const mongoose = require("mongoose");
+console.log("DATABASE exists:", !!process.env.DATABASE);
 
 mongoose
   .connect(process.env.DATABASE)
@@ -32,6 +33,7 @@ mongoose
   })
   .catch((error) => {
     console.error("Error connecting to MongoDB:", error.message);
+    process.exit(1);
   });
 
 // 2. Routes-ka saxda ah (Mid walba meeshiisa ayuu ku jiraa)
