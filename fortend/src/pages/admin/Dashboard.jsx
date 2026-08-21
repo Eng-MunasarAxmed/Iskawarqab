@@ -51,7 +51,7 @@ const API_BASE_URL = (
 const TRANSACTIONS_URLS = [
   `${API_BASE_URL}/api/transections`,
   // Fallback haddii backend-ka route-ku yahay "transactions" halkii "transections".
-  `${API_BASE_URL}/api/transactions`,
+  `${API_BASE_URL}/api/transections`,
 ];
 
 const USERS_URL = `${API_BASE_URL}/api/auth/users`;
