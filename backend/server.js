@@ -11,7 +11,7 @@ const auditLogRouter = require("./routes/auditLog.route");
 const cors = require("cors");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // 1. Daar CORS si uu u oggolaado Frontend-ka (Port 5173)
 app.use(
