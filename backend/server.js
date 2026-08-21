@@ -6,7 +6,7 @@ const transectionRouter = require("./routes/transection.route");
 const categoryRouter = require("./routes/category.route");
 const { UserModel } = require("./model/user.service");
 const authRouter = require("./routes/auth.route");
-const auditLogRouter = require("./routes/auditlog.route");
+const auditLogRouter = require("./routes/auditLog.route");
 
 const cors = require("cors");
 
