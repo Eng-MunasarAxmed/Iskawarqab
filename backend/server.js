@@ -38,7 +38,7 @@ mongoose
   });
 
 // 2. Routes-ka saxda ah (Mid walba meeshiisa ayuu ku jiraa)
-app.use("/api/users", auth, router);
+app.use("/api/users", router);
 app.use("/api/transections", transectionRouter);
 app.use("/api/categories", categoryRouter);
 app.use("/api/auth", authRouter);
