@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 3000;
 // 1. Daar CORS si uu u oggolaado Frontend-ka (Port 5173)
 app.use(
   cors({
-    origin: ["http://localhost:5173", "https://iskawarqab.netlify.app"],
+    origin: ["http://localhost:5173", "https://iskawarqab.netlify.app/api"],
     credentials: true,
   }),
 );
