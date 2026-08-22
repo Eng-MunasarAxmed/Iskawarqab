@@ -13,6 +13,7 @@ import {
   PiggyBank,
   Loader2,
 } from "lucide-react";
+import api from "../services/api"; // ⚠️ hubi path-ka saxda ah (fiiri UsersPage.jsx/Categories.jsx si aad u hubiso "../services/api" ama "../../services/api")
 
 // ============= Count-up Hook for numbers animation =============
 const useCountUp = (end, duration = 1200) => {
@@ -42,11 +43,6 @@ const useCountUp = (end, duration = 1200) => {
   return count;
 };
 
-// ============= API CONFIG =============
-// Backend-kaaga (Express + MongoDB) wuxuu ku shaqeeyaa port 3000,
-// oo route-ka transactions-ku waa "/api/transections" (sida server.js-kaaga ku qoran).
-const API_URL = "http://localhost:3000/api/transections";
-
 // ============= Date Formatter (ISO string -> readable date) =============
 const formatDate = (isoString) => {
   if (!isoString) return "-";
@@ -73,23 +69,13 @@ const Dashboard = () => {
         setLoading(true);
         setError(null);
 
-        // Backend-ku wuxuu u baahan yahay auth (route-ku wuxuu leeyahay "auth" middleware).
-        // Halkan waxaan ka soo qaadaynaa JWT token-ka la kaydiyay marka user-ku login gareeyay.
-        const token = localStorage.getItem("token");
+        // "api" instance-ku (services/api.js) horeba wuu leeyahay:
+        // - baseURL saxda ah (VITE_API_URL + "/api")
+        // - Authorization Bearer token si otomaatig ah (interceptor)
+        // sidaas darteed uma baahnid inaad si gaar ah u geliso token/headers halkan.
+        const response = await api.get("/transections");
 
-        const res = await fetch(API_URL, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!res.ok) {
-          throw new Error(`Server error: ${res.status}`);
-        }
-
-        const result = await res.json();
+        const result = response.data;
 
         // Backend-ku wuxuu ku celiyaa: { status: true, message: "...", data: [...] }
         // ee ma aha array toos ah — waa in laga soo saaraa "data".
