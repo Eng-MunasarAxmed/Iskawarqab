@@ -27,8 +27,8 @@ const Login = async (req, res) => {
     // =================================================
 
     if (!user) {
-      // AUDIT LOG
-      await AuditLogs.create({
+      // AUDIT LOG (background - ma joojin doono response-ka)
+      AuditLog.create({
         user: null,
         performedBy: null,
         action: "LOGIN_FAILED",
@@ -38,7 +38,7 @@ const Login = async (req, res) => {
           email: email,
           reason: "USER_NOT_FOUND",
         },
-      });
+      }).catch((e) => console.error("AUDIT LOG FAILED:", e.message));
 
       return res.status(400).json({
         status: false,
@@ -54,10 +54,10 @@ const Login = async (req, res) => {
     // =================================================
 
     const checkPassword = await bcrypt.compare(password, user.password);
+    console.log("PASSWORD MATCH:", checkPassword);
 
     if (!checkPassword) {
-      // AUDIT LOG
-      await AuditLog.create({
+      AuditLog.create({
         user: user._id,
         performedBy: null,
         action: "LOGIN_FAILED",
@@ -67,7 +67,7 @@ const Login = async (req, res) => {
           email: user.email,
           reason: "INVALID_PASSWORD",
         },
-      });
+      }).catch((e) => console.error("AUDIT LOG FAILED:", e.message));
 
       return res.status(400).json({
         status: false,
@@ -87,8 +87,7 @@ const Login = async (req, res) => {
       // =================================================
 
       if (user.accountStatus !== "approved") {
-        // AUDIT LOG
-        await AuditLog.create({
+        AuditLog.create({
           user: user._id,
           performedBy: null,
           action: "LOGIN_BLOCKED",
@@ -99,7 +98,7 @@ const Login = async (req, res) => {
             reason: "PENDING_APPROVAL",
             accountStatus: user.accountStatus,
           },
-        });
+        }).catch((e) => console.error("AUDIT LOG FAILED:", e.message));
 
         return res.status(403).json({
           status: false,
@@ -112,8 +111,7 @@ const Login = async (req, res) => {
       // =================================================
 
       if (user.status !== "active") {
-        // AUDIT LOG
-        await AuditLog.create({
+        AuditLog.create({
           user: user._id,
           performedBy: null,
           action: "LOGIN_BLOCKED",
@@ -124,7 +122,7 @@ const Login = async (req, res) => {
             reason: "ACCOUNT_INACTIVE",
             status: user.status,
           },
-        });
+        }).catch((e) => console.error("AUDIT LOG FAILED:", e.message));
 
         return res.status(403).json({
           status: false,
@@ -134,26 +132,10 @@ const Login = async (req, res) => {
     }
 
     // =================================================
-    // SUCCESSFUL LOGIN AUDIT
-    // =================================================
-
-    await AuditLog.create({
-      user: user._id,
-      performedBy: user._id,
-      action: "LOGIN",
-      description: `User ${user.fullname} logged in successfully`,
-      ipAddress: req.ip,
-      metadata: {
-        email: user.email,
-        role: user.role,
-        status: user.status,
-        accountStatus: user.accountStatus,
-      },
-    });
-
-    // =================================================
     // CREATE TOKEN
     // =================================================
+
+    console.log("CREATING TOKEN...");
 
     const token = jwt.sign(
       {
@@ -165,6 +147,26 @@ const Login = async (req, res) => {
         expiresIn: process.env.JWT_EXPIRES_IN,
       },
     );
+
+    console.log("TOKEN CREATED. SENDING RESPONSE.");
+
+    // =================================================
+    // SUCCESSFUL LOGIN AUDIT (background - ma joojin doono response-ka)
+    // =================================================
+
+    AuditLog.create({
+      user: user._id,
+      performedBy: user._id,
+      action: "LOGIN",
+      description: `User ${user.fullname} logged in successfully`,
+      ipAddress: req.ip,
+      metadata: {
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        accountStatus: user.accountStatus,
+      },
+    }).catch((e) => console.error("AUDIT LOG FAILED:", e.message));
 
     // =================================================
     // RESPONSE
