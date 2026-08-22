@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import axios from "axios";
+import api from "../../services/api";
 import {
   Eye,
   EyeOff,
@@ -77,15 +77,12 @@ const Register = () => {
     try {
       setLoading(true);
 
-      const response = await axios.post(
-        "http://localhost:3000/api/auth/register",
-        {
-          userId: Number(formData.userId),
-          fullname: formData.fullname.trim(),
-          email: formData.email.trim().toLowerCase(),
-          password: formData.password,
-        },
-      );
+      const response = await api.post("/auth/register", {
+  userId: Number(formData.userId),
+  fullname: formData.fullname.trim(),
+  email: formData.email.trim().toLowerCase(),
+  password: formData.password,
+});
 
       setMessage(
         response.data?.message ||
