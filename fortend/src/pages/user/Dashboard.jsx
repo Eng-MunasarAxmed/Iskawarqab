@@ -13,7 +13,7 @@ import {
   PiggyBank,
   Loader2,
 } from "lucide-react";
-import api from "../services/api"; // ⚠️ hubi path-ka saxda ah (fiiri UsersPage.jsx/Categories.jsx si aad u hubiso "../services/api" ama "../../services/api")
+import api from "../../services/api"; // ⚠️ hubi path-ka saxda ah (fiiri UsersPage.jsx/Categories.jsx si aad u hubiso "../services/api" ama "../../services/api")
 
 // ============= Count-up Hook for numbers animation =============
 const useCountUp = (end, duration = 1200) => {
