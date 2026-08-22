@@ -53,7 +53,7 @@ const TRANSACTIONS_URLS = [
   // Fallback haddii backend-ka route-ku yahay "transactions" halkii "transections".
 ];
 
-const USERS_URL = `${API_BASE_URL}/api/auth/users`;
+const USERS_URL = `${API_BASE_URL}/api/users`;
 
 // JSON-safe fetch:
 // 404/HTML response kama keenayo "Unexpected token '<'" sababtoo ah response-ka
