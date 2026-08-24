@@ -32,14 +32,24 @@ const auth = require("./Middleware/auth");
 console.log("DATABASE exists:", !!process.env.DATABASE);
 
 mongoose
-  .connect(process.env.DATABASE)
+  .connect(process.env.DATABASE, {
+    serverSelectionTimeoutMS: 30000, // sug 30 sekend halkii uu si dhaqso ah u fashilmi lahaa
+    socketTimeoutMS: 45000,
+  })
   .then(() => {
     console.log("Connected to MongoDB Atlas");
   })
   .catch((error) => {
     console.error("Error connecting to MongoDB:", error.message);
-    // process.exit(1);
   });
+
+// Ku dar tan si aad u hubiso in connection-ku uu si joogto ah u shaqeeyo
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB connection error:", err);
+});
+mongoose.connection.on("disconnected", () => {
+  console.log("MongoDB disconnected, will retry on next request");
+});
 
 // 2. Routes-ka saxda ah (Mid walba meeshiisa ayuu ku jiraa)
 app.use("/api/users", router);
