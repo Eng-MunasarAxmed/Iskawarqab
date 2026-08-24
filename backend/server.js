@@ -38,7 +38,7 @@ mongoose
   })
   .catch((error) => {
     console.error("Error connecting to MongoDB:", error.message);
-    process.exit(1);
+    // process.exit(1);
   });
 
 // 2. Routes-ka saxda ah (Mid walba meeshiisa ayuu ku jiraa)
