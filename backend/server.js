@@ -31,17 +31,42 @@ const mongoose = require("mongoose");
 const auth = require("./Middleware/auth");
 console.log("DATABASE exists:", !!process.env.DATABASE);
 
-mongoose
-  .connect(process.env.DATABASE, {
-    serverSelectionTimeoutMS: 30000, // sug 30 sekend halkii uu si dhaqso ah u fashilmi lahaa
-    socketTimeoutMS: 45000,
-  })
-  .then(() => {
-    console.log("Connected to MongoDB Atlas");
-  })
-  .catch((error) => {
-    console.error("Error connecting to MongoDB:", error.message);
-  });
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+async function connectDB() {
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    cached.promise = mongoose
+      .connect(process.env.DATABASE, {
+        serverSelectionTimeoutMS: 10000,
+        bufferCommands: false,
+      })
+      .then((mongoose) => {
+        console.log("Connected to MongoDB Atlas");
+        return mongoose;
+      });
+  }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
+  return cached.conn;
+}
+
+connectDB().catch((error) => {
+  console.error("Error connecting to MongoDB:", error.message);
+});
 
 // Ku dar tan si aad u hubiso in connection-ku uu si joogto ah u shaqeeyo
 mongoose.connection.on("error", (err) => {
