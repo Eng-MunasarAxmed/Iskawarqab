@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import {
   ShieldCheck,
@@ -325,6 +331,9 @@ const Security = () => {
   const [selectedAuditLog, setSelectedAuditLog] = useState(null);
   const [auditDetailLoading, setAuditDetailLoading] = useState(false);
 
+  // ⚠️ CUSUB: request tracking si loo iska ilaawo jawaabaha "stale" (race condition fix)
+  const auditRequestIdRef = useRef(0);
+
   /* ------------------------------------------------------------------------
      RECENT ACTIVITY (OVERVIEW WIDGET)
      ------------------------------------------------------------------------ */
@@ -449,10 +458,13 @@ const Security = () => {
   }, []);
 
   /* ==========================================================================
-     FETCH AUDIT LOGS
+     FETCH AUDIT LOGS — la daray: stale-response protection (race condition fix)
      ========================================================================== */
 
   const fetchAuditLogs = useCallback(async (page = 1, search = "") => {
+    // Mid kasta oo codsi cusub ah, kordhi ID-ga si aan u ognahay kan ugu dambeeya
+    const thisRequestId = ++auditRequestIdRef.current;
+
     try {
       setAuditLoading(true);
       setAuditError("");
@@ -501,7 +513,16 @@ const Security = () => {
         throw lastError || new Error("Audit logs endpoint was not found.");
       }
 
+      // Haddii codsi CUSUB uu horeba la diray intii kan hore socday,
+      // jawaabta qadiimiga ah (stale) waa la iska ilaawaa — layma dabaqo UI-ga.
+      if (thisRequestId !== auditRequestIdRef.current) {
+        return;
+      }
+
+      // Force-garee page-ka in uu ahaado kan la codsaday, ma aha kan backend-ku
+      // laga yaabo inuu si khaldan ugu soo celiyo (fallback la hubiyay).
       const normalized = normalizeAuditResponse(response.data, page);
+      normalized.pagination.page = page;
 
       console.log("NORMALIZED AUDIT LOGS:", normalized);
 
@@ -509,6 +530,10 @@ const Security = () => {
 
       setAuditPagination(normalized.pagination);
     } catch (error) {
+      if (thisRequestId !== auditRequestIdRef.current) {
+        return;
+      }
+
       console.error("GET AUDIT LOGS ERROR:", error);
 
       setAuditLogs([]);
@@ -524,7 +549,9 @@ const Security = () => {
 
       setAuditError(getErrorMessage(error, "Failed to fetch audit logs."));
     } finally {
-      setAuditLoading(false);
+      if (thisRequestId === auditRequestIdRef.current) {
+        setAuditLoading(false);
+      }
     }
   }, []);
 
