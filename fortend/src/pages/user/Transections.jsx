@@ -226,16 +226,16 @@ const Transections = () => {
 
                       <td className="px-6 py-4">
                         <div className="font-medium text-white">
-                          {transaction.userId?.fullname}
+                          {transaction.userId?.fullname || "-"}
                         </div>
                         <div className="text-xs text-blue-300">
-                          {transaction.userId?.email}
+                          {transaction.userId?.email || "-"}
                         </div>
                       </td>
 
                       <td className="px-6 py-4">
                         <div className="font-medium text-white">
-                          {transaction.categoryId?.name}
+                          {transaction.categoryId?.name || "-"}
                         </div>
                       </td>
 
